@@ -4,6 +4,7 @@ import com.chatapp.Tej.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -33,13 +34,9 @@ public class SecurityConfig {
                 .cors().and()
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/auth/**",
-                                "/ws/**",           // ✅ Allow WebSocket endpoint
-                                "/ws/chat/**",      // ✅ Allow WebSocket chat
-                                "/topic/**",        // ✅ Allow STOMP topics
-                                "/app/**"           // ✅ Allow STOMP app destinations
-                        ).permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ✅ Fix preflight issues
+                        .requestMatchers("/ws/chat/**").permitAll() // ✅ Only allow your actual WS endpoint
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
